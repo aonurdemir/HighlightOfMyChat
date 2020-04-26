@@ -2,10 +2,10 @@
   "name": "highlightofmychat",
   "version": "1.0.0",
   "description": "Stream Overlay to display Highlighted Message Twitch Channel Rewards!",
-  "main": "index.js",
+  "main": "public/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node public/index.js"
   },
   "repository": {
     "type": "git",
