@@ -165,9 +165,9 @@ setInterval(
     function () {
         if(!speaking && messageQueue.length > 0){
             speaking = true;
-            let params = messageQueue.splice(0,1);
-            params = params[0];
-            highlightThisMessage(params.user, `!${params.command} ${params.message}`, params.extra);
+            let message = messageQueue.splice(0,1);
+            message = message[0];
+            message.highlight();
         }
     },
     1000
@@ -185,11 +185,7 @@ ComfyJS.onMessageDeleted = ( id, extra ) => {
 ComfyJS.onChat = (user, message, flags, self, extra) => {
     if( flags.highlighted ) {
         messageQueue.push({
-            user: user,
-            message: message,
-            flags: flags,
-            self: self,
-            extra: extra,
+            highlight: () => highlightThisMessage(user, message, extra)
         });
     }
 };
@@ -197,11 +193,7 @@ ComfyJS.onChat = (user, message, flags, self, extra) => {
 ComfyJS.onCommand = (user, command, message, flags, extra) => {
     if (flags.highlighted) {
         messageQueue.push({
-            user: user,
-            command: command,
-            message: message,
-            flags: flags,
-            extra: extra,
+          highlight: () => highlightThisMessage(user,`!${ command } ${ message }`, extra)
         });
     }
 };
