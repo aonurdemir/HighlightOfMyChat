@@ -19,6 +19,9 @@ const badgeSets = {};
 let messageId = "";
 let cooldownTimer = null;
 
+let messageQueue = [];
+let speaking = false;
+
 function loadBadgeSet( id ) {
   Promise.all( [
     fetch( `${ BADGES_BASE }/global/display?language=en` )
@@ -141,7 +144,7 @@ async function highlightThisMessage( user, message, extra ) {
       // await speak.text();
       return;
     }
-    
+
     // TODO: Switch to Web Audio API instead of using Audio elements.
     const mp3 = await speak.blob();
     const blobUrl = URL.createObjectURL( mp3 );
@@ -154,6 +157,22 @@ async function highlightThisMessage( user, message, extra ) {
   }
 }
 
+$('#audio').bind('ended', function () {
+    speaking = false;
+});
+
+setInterval(
+    function () {
+        if(!speaking && messageQueue.length > 0){
+            speaking = true;
+            let params = messageQueue.splice(0,1);
+            params = params[0];
+            highlightThisMessage(params.user, `!${params.command} ${params.message}`, params.extra);
+        }
+    },
+    1000
+);
+
 ComfyJS.onMessageDeleted = ( id, extra ) => {
   if( id === messageId ) {
     // DELETE THE HIGHLIGHTED MESSAGE
@@ -163,16 +182,28 @@ ComfyJS.onMessageDeleted = ( id, extra ) => {
   }
 };
 
-ComfyJS.onChat = ( user, message, flags, self, extra ) => {
-  if( flags.highlighted ) {
-    highlightThisMessage( user, message, extra );
-  }
+ComfyJS.onChat = (user, message, flags, self, extra) => {
+    if( flags.highlighted ) {
+        messageQueue.push({
+            user: user,
+            message: message,
+            flags: flags,
+            self: self,
+            extra: extra,
+        });
+    }
 };
 
-ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
-  if( flags.highlighted ) {
-    highlightThisMessage( user, `!${ command } ${ message }`, extra );
-  }
+ComfyJS.onCommand = (user, command, message, flags, extra) => {
+    if (flags.highlighted) {
+        messageQueue.push({
+            user: user,
+            command: command,
+            message: message,
+            flags: flags,
+            extra: extra,
+        });
+    }
 };
 
 if( channel ) {
@@ -180,7 +211,7 @@ if( channel ) {
 
   fetch(
     `https://api.twitch.tv/helix/users?login=${ channel }`,
-    { headers: { "Client-ID": "2odsv8xermvalbub7wipebrphqlpqv" } }
+    { headers: { "Client-ID": "0rpbx5j4xzr8co91qe7br2pk5ij24e" } }
   )
   .then( r => r.json() )
   .then( data => loadBadgeSet( data.data[ 0 ].id ) );
