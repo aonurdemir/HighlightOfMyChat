@@ -182,8 +182,9 @@ ComfyJS.onMessageDeleted = (id, extra) => {
 }
 
 ComfyJS.onChat = (user, message, flags, self, extra) => {
-	if (flags.highlighted) {
+	if(message.length > 150) return;
 
+	if (flags.highlighted) {
 		messageQueue.push({
 			highlight: () => highlightThisMessage(user, message, extra)
 		})
@@ -201,10 +202,13 @@ ComfyJS.onCommand = (user, command, message, flags, extra) => {
 if (channel) {
 	ComfyJS.Init(channel)
 
-	fetch(
-		`https://api.twitch.tv/helix/users?login=${channel}`,
-		{ headers: { 'Client-ID': '0rpbx5j4xzr8co91qe7br2pk5ij24e' } }
-	)
-		.then(r => r.json())
-		.then(data => loadBadgeSet(data.data[0].id))
+	// fetch(
+	// 	`https://api.twitch.tv/helix/users?login=${channel}`,
+	// 	{ headers: { 'Client-ID': '0rpbx5j4xzr8co91qe7br2pk5ij24e' } }
+	// )
+	// 	.then(r => r.json())
+	// 	.then(data => loadBadgeSet(data.data[0].id))
+	// 	.catch(function (reason) {
+	// 		console.log(reason);
+	// 	})
 }
