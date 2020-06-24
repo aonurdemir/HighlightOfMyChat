@@ -42,6 +42,19 @@ const sounds = [
 	'sad',
 	'screaming-sheep',
 	'secret',
+	'sivaslı dayı',
+	'they see me rollin',
+	'titanic parody',
+	'titrettin beni',
+	'ugh',
+	'umayua',
+	'why are u running',
+	'windows error',
+	'windows shutdown',
+	'wow',
+	'wtf haha',
+	'yazik kafana',
+	'yes ohh my god',
 ]
 
 let messageId = ''
