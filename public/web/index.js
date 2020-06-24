@@ -16,6 +16,34 @@ const ttsVoice = params.get('voice') || 'Brian'
 const alignBottom = params.get('bottom') || false
 const textOnScreenTime = params.get('texttimer') || 30000
 const badgeSets = {}
+const sounds = [
+	'boom hs',
+	'bruh',
+	'clap ur hands',
+	'cs go hs',
+	'damaged coda',
+	'elimuze verdiler',
+	'excuse me',
+	'f_ckoff',
+	'hadi git yat',
+	'how could this happen to me',
+	'i-see-u',
+	'inceptionbutton',
+	'lol',
+	'nioce',
+	'nooo',
+	'nope',
+	'nyaah',
+	'oh baby a triple',
+	'oh shit',
+	'pog',
+	'quack',
+	'run',
+	'sad',
+	'screaming-sheep',
+	'secret',
+]
+
 let messageId = ''
 let cooldownTimer = null
 
@@ -156,6 +184,22 @@ async function highlightThisMessage (user, message, extra) {
 	}
 }
 
+async function playSound (url) {
+	try {
+		elements.source.src = url
+		const audio = elements.audio
+		audio.pause()
+		audio.load()
+		audio.volume = 1
+		audio.play().catch(function (error) {
+			console.log(error)
+			speaking = false
+		})
+	} catch (e) {
+		console.log(e)
+	}
+}
+
 $('#audio').bind('ended', function () {
 	speaking = false
 })
@@ -166,10 +210,18 @@ setInterval(
 			speaking = true
 			let message = messageQueue.splice(0, 1)
 			message = message[0]
-			message.highlight()
+			message[message['func']]()
 		}
 	},
 	1000
+)
+
+//Prevent dead lock, after 20s, reset speaking state to false
+setInterval(
+	function () {
+		speaking = false
+	},
+	20000
 )
 
 ComfyJS.onMessageDeleted = (id, extra) => {
@@ -182,10 +234,22 @@ ComfyJS.onMessageDeleted = (id, extra) => {
 }
 
 ComfyJS.onChat = (user, message, flags, self, extra) => {
-	if(message.length > 150) return;
+	if (message.length > 150) return
+
+	if (extra.customRewardId === 'cf084591-186a-41c7-91e4-27bc043a19f1') {
+		if (sounds.indexOf(message) === -1) {
+			return
+		}
+
+		messageQueue.push({
+			func: 'playSound',
+			playSound: () => playSound('sounds/' + message.toLowerCase() + '.mp3')
+		})
+	}
 
 	if (flags.highlighted) {
 		messageQueue.push({
+			func: 'highlight',
 			highlight: () => highlightThisMessage(user, message, extra)
 		})
 	}
@@ -194,6 +258,7 @@ ComfyJS.onChat = (user, message, flags, self, extra) => {
 ComfyJS.onCommand = (user, command, message, flags, extra) => {
 	if (flags.highlighted) {
 		messageQueue.push({
+			func: 'highlight',
 			highlight: () => highlightThisMessage(user, `!${command} ${message}`, extra)
 		})
 	}
