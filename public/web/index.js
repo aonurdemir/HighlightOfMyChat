@@ -203,7 +203,7 @@ async function playSound (url) {
 		const audio = elements.audio
 		audio.pause()
 		audio.load()
-		audio.volume = 1
+		audio.volume = 0.3
 		audio.play().catch(function (error) {
 			console.log(error)
 			speaking = false
