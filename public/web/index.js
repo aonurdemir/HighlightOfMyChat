@@ -1,3 +1,57 @@
+
+
+
+
+function createOnChatListener(channel) {
+	if(channel === "aitcheyedee"){
+		return aitcheeyedeeOnChatListener;
+	}
+	else if(channel === "1kadin1erkek"){
+		return birKadinBirErkekOnChatListener;
+	}
+	else {
+		throw 'Wrong channel name is provided. Please check your channel name'
+	}
+}
+
+function aitcheeyedeeOnChatListener  (user, message, flags, self, extra) {
+	if (message.length > 150) return
+
+	if (extra.customRewardId === 'cf084591-186a-41c7-91e4-27bc043a19f1') {
+		if (sounds.indexOf(message) === -1) {
+			return
+		}
+
+		messageQueue.push({
+			func: 'playSound',
+			playSound: () => playSound('sounds/' + message.toLowerCase() + '.mp3')
+		})
+	}
+
+	if (flags.highlighted) {
+		messageQueue.push({
+			func: 'highlight',
+			highlight: () => highlightThisMessage(user, message, extra)
+		})
+	}
+}
+
+function birKadinBirErkekOnChatListener  (user, message, flags, self, extra) {
+	if (message.length > 150) return
+
+	if (extra.customRewardId === 'b82b17eb-27a2-450a-a1cb-76f4d23c9791') {
+		messageQueue.push({
+			func: 'highlight',
+			highlight: () => highlightThisMessage(user, message, extra)
+		})
+	}
+}
+
+
+
+
+
+
 const elements = {
 	badges: document.querySelector('#badges'),
 	username: document.querySelector('#username'),
@@ -246,27 +300,8 @@ ComfyJS.onMessageDeleted = (id, extra) => {
 	}
 }
 
-ComfyJS.onChat = (user, message, flags, self, extra) => {
-	if (message.length > 150) return
 
-	if (extra.customRewardId === 'cf084591-186a-41c7-91e4-27bc043a19f1') {
-		if (sounds.indexOf(message) === -1) {
-			return
-		}
-
-		messageQueue.push({
-			func: 'playSound',
-			playSound: () => playSound('sounds/' + message.toLowerCase() + '.mp3')
-		})
-	}
-
-	if (flags.highlighted) {
-		messageQueue.push({
-			func: 'highlight',
-			highlight: () => highlightThisMessage(user, message, extra)
-		})
-	}
-}
+ComfyJS.onChat = createOnChatListener(channel);
 
 ComfyJS.onCommand = (user, command, message, flags, extra) => {
 	if (flags.highlighted) {
